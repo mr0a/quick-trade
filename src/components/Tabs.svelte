@@ -5,7 +5,7 @@
 	const handleClick = (tabValue) => () => (activeTabValue = tabValue);
 </script>
 
-<div>
+<div class="mb-5">
     <ul>
         {#each items as item}
             <li class={activeTabValue === item.value ? 'active' : ''}>

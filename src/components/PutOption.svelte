@@ -8,13 +8,13 @@
     <p>Strike: <span class="font-medium">{instrument}</span></p>
     <p>LTP: <span class="font-medium">Rs. {ltp}</span></p>
     <div>
-        <button class="text-white rounded px-4 py-2 mx-2 bg-green-600 hover:bg-green-700 focus:ring-2 focus:ring-gray-400">
+        <button class="text-white rounded px-4 py-2 mx-2 bg-green-500 hover:bg-green-600 focus:ring-2 focus:ring-gray-400">
             <div class="flex items-center gap-2">
                 <Icon src={ArrowNarrowDown} size=18 />
                 Buy Put
             </div>
         </button>
-        <button class="text-white rounded px-4 py-2 mx-2 bg-red-600 hover:bg-red-700 focus:ring-2 focus:ring-gray-400">
+        <button class="text-white rounded px-4 py-2 mx-2 bg-red-500 hover:bg-red-600 focus:ring-2 focus:ring-gray-400">
             <div class="flex items-center gap-2">
                 <Icon src={ArrowNarrowRight} size=16 />
                 Sell Put
