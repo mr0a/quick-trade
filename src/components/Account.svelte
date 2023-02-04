@@ -1,25 +1,27 @@
 <!-- Component to display the account information -->
 <script>
-	import { Icon, Refresh, User, Users } from 'svelte-hero-icons';
+	import { Icon, Refresh, User } from 'svelte-hero-icons';
 	import { onMount } from 'svelte';
-	import {brokerStore} from '../stores/broker_details'
-	import {getDataFromBroker} from '../helper/request'
+	import { brokerStore } from '../stores/writableStores';
+	import { getDataFromBroker } from '../helper/flattrade';
 
 	let broker = $brokerStore.broker;
 	let client_id = $brokerStore.client_id;
 	let active = true;
 	let token = $brokerStore.token;
 
-	const checkToken = () => {
-		getDataFromBroker("/UserDetails").then(({response}) => {
-			active = response.status == 200;
-			if (active){
-				brokerStore.update(data => {
-					data.token = token;
-					return data
-				});
-			}
+	const updateToken = () => {
+		brokerStore.update((data) => {
+			data.token = token;
+			return data;
 		})
+		checkToken()
+	}
+
+	const checkToken = () => {
+		getDataFromBroker('/UserDetails').then(({ response }) => {
+			active = response.status == 200;
+		});
 	};
 
 	onMount(() => {
@@ -41,7 +43,12 @@
 		</a>
 		{#if active == false}
 			<input class="border border-black mx-1 rounded" type="text" bind:value={token} />
-			<button class="border rounded px-2 py-1 text-sm bg-sky-500 hover:bg-sky-600" on:click={checkToken}> Update </button>
+			<button
+				class="border rounded px-2 py-1 text-sm bg-sky-500 hover:bg-sky-600"
+				on:click={updateToken}
+			>
+				Update
+			</button>
 		{/if}
 	</div>
 </div>

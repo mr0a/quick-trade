@@ -1,59 +1,69 @@
 <script>
 	import Dropdown from './Dropdown.svelte';
-	import {option} from '../stores/option_strike'
-	import {getStrike, call_strike, put_strike} from '../stores/option_strike'
-	import {OPTIONS, EXPIRY_DATES, QUANTITY} from '../constants'
+	import { callStrikeStore, putStrikeStore, expiryStore, quantityStore, optionStore } from '../stores/writableStores';
+	import { indexDataStore } from '../stores/readableStores';
+	import { INDICES, EXPIRY_DATES, QUANTITY } from '../constants';
+	import { getOptionStrikes } from '../helper/helper';
+	import { onMount } from 'svelte';
 
-	let expiry_menu = EXPIRY_DATES.filter((date) => {
-		let today = new Date();
-		return !(new Date(date) < today)
+	export let oneClickBuy;
+
+
+	let strikeOptions = ["17500", "17600"]
+
+	onMount(() => {
+		indexDataStore.subscribe(index => {
+			if (index.name != ""){
+				getOptionStrikes(index.name).then(data => {
+					strikeOptions = data
+				})
+			}
+		})
 	})
 
-	const optionSelectHandler = (value) => option.set(value)
-	const callStrikeSelectHandler = (value) => call_strike.set(value)
-	const putStrikeSelectHandler = (value) => put_strike.set(value)
-
-	let strikeOptionStore = getStrike()
-
-	$:console.log("strike", $strikeOptionStore, $call_strike, $put_strike)
 
 </script>
 
-<div class="flex justify-around mt-5">
-	<div class="flex flex-col">
-		<label
-			class="block mb-2 text-medium font-medium text-gray-900 dark:text-white"
-			for="option_selector">Option</label
-		>
-		<!-- <input type="text" name="option_selector"> -->
-		<Dropdown menus={OPTIONS} handler={optionSelectHandler} value={$option} />
+<div>
+	<div class="flex justify-around mt-3">
+		<div class="flex flex-col">
+			<label
+				class="block mb-2 text-medium font-medium text-gray-900 dark:text-white"
+				for="option_selector">Option</label
+			>
+			<Dropdown menus={INDICES} bind:value={$optionStore} />
+		</div>
+		<div class="flex flex-col">
+			<label
+				class="block mb-2 text-medium font-medium text-gray-900 dark:text-white"
+				for="option_selector">Expiry Date</label
+			>
+			<Dropdown menus={EXPIRY_DATES} bind:value={$expiryStore} />
+		</div>
+		<div class="flex flex-col">
+			<label
+				class="block mb-2 text-medium font-medium text-gray-900 dark:text-white"
+				for="option_selector">Call Strike Price</label
+			>
+			<Dropdown menus={strikeOptions} bind:value={$callStrikeStore} />
+		</div>
+		<div class="flex flex-col">
+			<label
+				class="block mb-2 text-medium font-medium text-gray-900 dark:text-white"
+				for="option_selector">Put Strike Price</label
+			>
+			<Dropdown menus={strikeOptions} bind:value={$putStrikeStore} />
+		</div>
+		<div class="flex flex-col">
+			<label
+				class="block mb-2 text-medium font-medium text-gray-900 dark:text-white"
+				for="option_selector">Quantity (lots)</label
+			>
+			<Dropdown menus={QUANTITY} bind:value={$quantityStore} />
+		</div>
 	</div>
-	<div class="flex flex-col">
-		<label
-			class="block mb-2 text-medium font-medium text-gray-900 dark:text-white"
-			for="option_selector">Expiry Date</label
-		>
-		<Dropdown menus={expiry_menu} />
-	</div>
-	<div class="flex flex-col">
-		<label
-			class="block mb-2 text-medium font-medium text-gray-900 dark:text-white"
-			for="option_selector">Call Strike Price</label
-		>
-		<Dropdown menus={$strikeOptionStore} handler={callStrikeSelectHandler} value={$call_strike} />
-	</div>
-	<div class="flex flex-col">
-		<label
-			class="block mb-2 text-medium font-medium text-gray-900 dark:text-white"
-			for="option_selector">Put Strike Price</label
-		>
-		<Dropdown menus={$strikeOptionStore} handler={putStrikeSelectHandler} value={$put_strike} />
-	</div>
-	<div class="flex flex-col">
-		<label
-			class="block mb-2 text-medium font-medium text-gray-900 dark:text-white"
-			for="option_selector">Quantity (lots)</label
-		>
-		<Dropdown menus={QUANTITY} />
+	<div class="flex gap-2 justify-end mt-3">
+		<input type="checkbox" name="one_click" bind:checked={oneClickBuy}>
+		<label for="one_click">Quick Trade</label>
 	</div>
 </div>

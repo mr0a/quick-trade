@@ -1,79 +1,64 @@
 <script>
 	import { Icon, XCircle } from 'svelte-hero-icons';
-	import { marginStore, brokerStore } from '../stores/broker_details';
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
+	import { getDataFromBroker } from '../helper/flattrade';
+	import { marginStore, brokerStore } from '../stores/writableStores';
 
 	let net_qty = 0;
 
 	let positions = [];
 
+	let mtm = 0, rpnl = 0, brkage_d_b = 0;
+
+	$: mtm = $marginStore?.cash;
+	$: ({rpnl = 0, brkage_d_b = 0} = $marginStore);
+
 	const handleClose = (index) => {
 		console.log('Clicked', index);
 		positions[index].isOpen = false;
-		console.log(positions);
 	};
 
 	const updateMargin = () => {
-		let data = {
-			uid: $brokerStore.client_id,
+		getDataFromBroker('/Limits', {
 			actid: $brokerStore.client_id
-		};
-		let response = fetch('https://piconnect.flattrade.in/PiConnectTP/Limits', {
-			mode: 'cors',
-			method: 'POST',
-			body: 'jData=' + JSON.stringify(data) + '&jKey=' + $brokerStore.token
-		});
-		response.then((resp) => {
-			console.log(resp);
-			if (resp.status == 200) {
-				resp.json().then((data) => marginStore.set(data));
+		}).then(({ response, jsonData }) => {
+			console.debug(response);
+			if (response.status == 200) {
+				marginStore.set(jsonData);
 			}
 		});
-		console.log($marginStore);
 	};
 
 	const updatePositions = async () => {
-		let data = {
-			uid: $brokerStore.client_id,
+		let { response, jsonData } = await getDataFromBroker('/PositionBook', {
 			actid: $brokerStore.client_id
-		};
-		let response = fetch('https://piconnect.flattrade.in/PiConnectTP/PositionBook', {
-			mode: 'cors',
-			method: 'POST',
-			body: 'jData=' + JSON.stringify(data) + '&jKey=' + $brokerStore.token
 		});
-		response.then((resp) => {
-			if (resp.status == 200) {
-				resp.json().then((data) => {
-					console.log(data);
-					positions = data.map((pos) => {
-						let buy_or_sell = '-';
-						if (pos.daybuyqty > pos.daysellqty) {
-							buy_or_sell = 'BUY';
-						} else if (pos.daybuyqty < pos.daysellqty) {
-							buy_or_sell = 'SELL';
-						}
-						let position = {
-							name: pos.dname,
-							qty: pos.cfbuyqty,
-							ltp: pos.lp,
-							pl: pos.rpnl,
-							isOpen: parseInt(pos.netqty) != 0,
-							type: buy_or_sell,
-							buy_qty: pos.daybuyqty,
-							sell_qty: pos.daysellqty,
-							buy_price: pos.daybuyavgprc,
-							sell_price: pos.daysellavgprc,
-							exchange: pos.exch,
-							token_symbol: pos.tsym,
-							token: pos.token
-						};
-						return position;
-					});
-					console.log(positions);
-				});
-			}
-		});
+		if (response.status == 200 && jsonData.stat == "Ok") {
+			positions = jsonData.map((pos) => {
+				let buy_or_sell = '-';
+				if (pos.daybuyqty > pos.daysellqty) {
+					buy_or_sell = 'BUY';
+				} else if (pos.daybuyqty < pos.daysellqty) {
+					buy_or_sell = 'SELL';
+				}
+				let position = {
+					name: pos.dname,
+					qty: pos.cfbuyqty,
+					ltp: pos.lp,
+					pl: pos.rpnl,
+					isOpen: parseInt(pos.netqty) != 0,
+					type: buy_or_sell,
+					buy_qty: pos.daybuyqty,
+					sell_qty: pos.daysellqty,
+					buy_price: pos.daybuyavgprc,
+					sell_price: pos.daysellavgprc,
+					exchange: pos.exch,
+					token_symbol: pos.tsym,
+					token: pos.token
+				};
+				return position;
+			});
+		}
 	};
 
 	onMount(() => {
@@ -85,10 +70,13 @@
 <div>
 	<div class="flex justify-around border-b-2 pb-2">
 		<p>Net Qty: {net_qty}</p>
-		<p>MTM: {$marginStore.cash}</p>
+		<p>MTM: {mtm}</p>
 		<p>
-			P&L: <span class="{$marginStore.rpnl > 0 ? "text-green-500": "text-red-500"}">{$marginStore.rpnl}</span>
+			P&L: <span class={rpnl > 0 ? 'text-red-500': 'text-green-500'}
+				>{rpnl > 0 ? '-': ''}{rpnl}</span
+			>
 		</p>
+		<p>Tax: <span>{brkage_d_b}</span></p>
 	</div>
 
 	<div>
@@ -163,7 +151,7 @@
 								</div>
 							</td>
 							<td class="p-2">
-								<div class="text-left {position.pl > 0 ? "text-green-500": "text-red-500"}">
+								<div class="text-left {position.pl > 0 ? 'text-green-500' : 'text-red-500'}">
 									{position.pl}
 								</div>
 							</td>
