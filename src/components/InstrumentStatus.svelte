@@ -18,7 +18,9 @@
 	<div>
 		<p class="font-bold text-xl font-serif text-center mb-2">{$indexDataStore.name}</p>
 		<p class="text-center">
-            LTP: <span class="font-medium">{$realtimeData[$indexDataStore.token]?.lp || 0} </span><span class="text-green-700">({$realtimeData[$indexDataStore.token]?.pc || 0}%)</span>
+            LTP: 
+			<span class="font-medium">{ltp || 0} </span>
+			<span class={percent > 0 ? "text-green-700":"text-red-500"}>({percent || 0}%)</span>
         </p>
 	</div>
 </div>

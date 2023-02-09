@@ -10,8 +10,8 @@
 	import OrderBook from '../components/OrderBook.svelte';
 	import Journal from '../components/Journal.svelte';
 	import OptionChain from '../components/OptionChain.svelte';
-	import { brokerStore, realtimeData } from '../stores/writableStores';
-	import { onMount } from 'svelte';
+	import { placeOrder } from '../helper/flattrade';
+	import { callOption, putOption } from '../stores/readableStores';
 
 	let key_bind = true;
 
@@ -22,27 +22,35 @@
 		{ label: 'Option Chain', value: 4, component: OptionChain }
 	];
 
+	const handleTrade = async (instrument, trantype) => {
+        let {response, jsonData} = await placeOrder(instrument, trantype);
+    }
+
 	function on_key_up(event) {
 		if (!key_bind) return;
 		switch (event.key) {
 			case 'ArrowUp':
 				event.preventDefault();
 				console.debug('Up Arrow Pressed --> Call Buy');
+				handleTrade($callOption, "B")
 				break;
 
 			case 'ArrowLeft':
 				event.preventDefault();
 				console.debug('Left Arrow Pressed --> Call Sell');
+				handleTrade($callOption, "S")
 				break;
 
 			case 'ArrowDown':
 				event.preventDefault();
 				console.debug('Down Arrow Pressed --> Put Buy');
+				handleTrade($putOption, "B")
 				break;
 
 			case 'ArrowRight':
 				event.preventDefault();
 				console.debug('Right Arrow Pressed --> Put Sell');
+				handleTrade($putOption, "S")
 				break;
 		}
 	}
@@ -57,6 +65,7 @@
 <svelte:window on:keyup={on_key_up} />
 
 <div class="mb-5">
+	<!-- <Modal /> -->
 	<Account />
 	<OptionSelector bind:oneClickBuy={key_bind} />
 

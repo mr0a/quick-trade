@@ -93,7 +93,7 @@
 								<div class="text-left">{order.trantype}</div>
 							</td>
 							<td class="p-2">
-								<div class="text-left">{order.prc}</div>
+								<div class="text-left">{order.avgprc || order.prc}</div>
 							</td>
 							<td class="p-2">
 								<div class="text-left">{order?.blprc || '-'}</div>

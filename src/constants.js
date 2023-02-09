@@ -33,7 +33,9 @@ let expiry_dates = [
 
 export const EXPIRY_DATES = expiry_dates.filter((date) => {
     let today = new Date();
-    return !(new Date(date) < today);
+    today.setHours(0, 0, 0, 0);
+    let checkDate = new Date(date);
+    return (today <= checkDate);
 });
 
 export const QUANTITY = [1,2,3,4,5,6,7,8,9,10]

@@ -24,3 +24,19 @@ export const getOptionStrikes = async (index_name) => {
 }
 
 
+export async function addToWatchlist(optionName) {
+    let { response, jsonData } = await getDataFromBroker('/SearchScrip', {
+        exch: "NFO",
+        stext: optionName
+    })
+    if (response.status != 200) {
+        console.debug("Failed to get data from broker")
+        return;
+    }
+    exchangeProperties.update(value => {
+        let respValues = jsonData["values"][0]
+        value[optionName] = respValues
+        return value;
+    })
+}
+

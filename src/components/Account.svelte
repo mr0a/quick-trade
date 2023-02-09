@@ -21,6 +21,9 @@
 	const checkToken = () => {
 		getDataFromBroker('/UserDetails').then(({ response }) => {
 			active = response.status == 200;
+		}).catch(err => {
+			console.log(err)
+			active = false;
 		});
 	};
 
@@ -34,7 +37,7 @@
 		<Icon src={User} size="16" />
 		<span class="font-bold">{broker}({client_id})</span>
 		<a
-			href="#id"
+			href="/"
 			aria-label="Refresh Broker Token status"
 			class="inline-block {active ? 'text-green-500' : 'text-red-500'}"
 			on:click={checkToken}

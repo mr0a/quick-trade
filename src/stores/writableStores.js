@@ -1,8 +1,15 @@
 import { writable } from "svelte/store";
 import { persisted } from 'svelte-local-storage-store'
-import { strikeStore } from "./customStores";
+import { strikeStore, positionStoreCustom, customMarginStore } from "./customStores";
 import { EXPIRY_DATES, QUANTITY } from "../constants";
 
+export const brokerStore = persisted('broker_token', {
+    "token": "",
+    "client_id": "FT013065",
+    "broker": 'FlatTrade'
+});
+
+export const marginStore = await customMarginStore("margin", {});
 
 // Stores to handle select data
 export const optionStore = writable("NIFTY");
@@ -11,7 +18,7 @@ export const callStrikeStore = strikeStore("17500");
 export const putStrikeStore = strikeStore("17500");
 export const quantityStore = writable(QUANTITY[0]);
 
-export const exchangeTokens = writable({})
+// Stores to handle data about the option and its 
 export const exchangeProperties = writable({});
 
 export const realtimeData = writable({})
@@ -22,11 +29,13 @@ export const subscribeList = writable([])
 export const unsubscribeList = writable([])
 
 
-export const brokerStore = persisted('broker_token', {
-    "token": "",
-    "client_id": "FT013065",
-    "broker": 'FlatTrade'
-});
+// Order Management
+export const positionStore = await positionStoreCustom()
 
-export const marginStore = persisted("margin", {});
+// P&L Management
+export const plLimitStore = persisted('pllimit', {})
+
+export const stopLossStore = persisted('stoploss', {})
+
+
 

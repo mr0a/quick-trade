@@ -1,4 +1,4 @@
-import { realtimeData, exchangeProperties } from "../stores/writableStores";
+import { realtimeData, exchangeProperties, positionStore, marginStore } from "../stores/writableStores";
 import { get } from "svelte/store";
 
 export const handleWSData = (event) => {
@@ -23,7 +23,12 @@ export const handleWSData = (event) => {
         case "u":
             break;
 
+        // case "om":
+        //     break;
+
         default:
+            positionStore.refresh();
+            marginStore.refresh();
             break;
     }
 }
