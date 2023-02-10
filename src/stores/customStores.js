@@ -52,7 +52,9 @@ export const indexStore = () => {
 
 export const wsocketStore = () => {
     if (typeof window !== "undefined") {
-        const ws = new WebSocket('wss://piconnect.flattrade.in/PiConnectWSTp/');
+        // let socketURL = "wss://web.flattrade.in/NorenWSWeb/"
+        let socketURL = "wss://piconnect.flattrade.in/PiConnectWSTp/"
+        const ws = new WebSocket(socketURL);
         let brokerData = get(brokerStore)
         let data = {
             uid: brokerData.client_id,
@@ -141,7 +143,7 @@ export const customMarginStore = async () => {
 
 
 export const positionStoreCustom = async () => {
-    let positionStore = writable({});
+    let positionStore = writable([]);
 
     const refresh = async () => {
         let { response, jsonData } = await getDataFromBroker('/PositionBook', {
